@@ -1,5 +1,6 @@
 package HaoRan.ImageFilter.Main;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,12 +9,16 @@ import HaoRan.ImageFilter.Distort.*;
 import HaoRan.ImageFilter.Textures.*;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -27,18 +32,57 @@ public class ImageFilterMain extends Activity {
 	private ImageView imageView;
 	private TextView textView;
 
+	private int screenHeight = 1080;
+
+	private Bitmap chooseBitmap = null;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		
+
+		screenHeight = getWindowManager().getDefaultDisplay().getHeight();
+
 		imageView= (ImageView) findViewById(R.id.imgfilter);
 		textView = (TextView) findViewById(R.id.runtime);
 		//注：在android系统上，手机图片尺寸尽量控制在480*480范围内,否则在高斯运算时可以造成内存溢出的问题
 		Bitmap bitmap = BitmapFactory.decodeResource(ImageFilterMain.this.getResources(), R.drawable.image);
 		imageView.setImageBitmap(bitmap);
 
+		imageView.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View view) {
+				Intent intent = new Intent();
+                /* 开启Pictures画面Type设定为image */
+				intent.setType("image/*");
+                /* 使用Intent.ACTION_GET_CONTENT这个Action */
+				intent.setAction(Intent.ACTION_GET_CONTENT);
+                /* 取得相片后返回本画面 */
+				startActivityForResult(intent, 1001);
+			}
+		});
+
 		LoadImageFilter();
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (resultCode == RESULT_OK) {
+			Uri uri = data.getData();
+			Log.e("uri", uri.toString());
+			ContentResolver cr = this.getContentResolver();
+			try {
+				Bitmap bitmap = BitmapFactory.decodeStream(cr.openInputStream(uri));
+				// ImageView imageView = (ImageView) findViewById(R.id.iv01);
+                /* 将Bitmap设定到ImageView */
+				chooseBitmap = bitmap;
+				imageView.setImageBitmap(bitmap);
+			} catch (FileNotFoundException e) {
+				Log.e("Exception", e.getMessage(),e);
+			}
+		}
+		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	/**
@@ -78,7 +122,12 @@ public class ImageFilterMain extends Activity {
 			Image img = null;
 			try
 	    	{
-				Bitmap bitmap = BitmapFactory.decodeResource(activity.getResources(), R.drawable.image);
+				Bitmap bitmap;
+				if (chooseBitmap != null) {
+					bitmap = chooseBitmap;
+				} else {
+					bitmap = BitmapFactory.decodeResource(activity.getResources(), R.drawable.image);
+				}
 				img = new Image(bitmap);
 				if (filter != null) {
 					img = filter.process(img);
@@ -259,8 +308,8 @@ public class ImageFilterMain extends Activity {
 			Bitmap bmImg = BitmapFactory
 					.decodeResource(mContext.getResources(),
 							filterArray.get(position).filterID);
-			int width = 100;// bmImg.getWidth();
-			int height = 100;// bmImg.getHeight();
+			int width = screenHeight / 10 * 2;// bmImg.getWidth();
+			int height = screenHeight / 10 * 2;// bmImg.getHeight();
 			bmImg.recycle();
 			ImageView imageview = new ImageView(mContext);
 			imageview.setImageResource(filterArray.get(position).filterID);

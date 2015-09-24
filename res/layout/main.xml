@@ -2,32 +2,36 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+			  android:weightSum="10"
     android:orientation="vertical" >
       
 	<LinearLayout 
 		android:layout_width="fill_parent" 
-		android:layout_height="wrap_content"
+		android:layout_height="0dp"
 		android:layout_alignParentTop="true" 
 		android:visibility="visible"
+		android:layout_weight="2"
 		android:orientation="vertical">
 		<Gallery 
 	    	android:id="@+id/galleryFilter"
 			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"		
+			android:layout_height="match_parent"
 			android:spacing="2px" />
 	    
  	</LinearLayout>	
     <TextView android:layout_width="fill_parent"
-					android:layout_height="wrap_content" 
+					android:layout_height="0dp"
 					android:id="@+id/runtime"
 					android:text="图片渲染中......"
 					android:singleLine="true"
+			  android:layout_weight="1"
 			        android:textColor="#666666"
 			        android:textSize="14dip"
 			        android:visibility="gone"
 					/>
-    <ImageView android:id="@+id/imgfilter" 
-				   android:layout_width="fill_parent" android:layout_height="fill_parent" 
+    <ImageView android:id="@+id/imgfilter"
+			   android:layout_weight="7"
+				   android:layout_width="fill_parent" android:layout_height="0dp"
 				   android:clickable="false" android:focusable="false" />
 
 </LinearLayout>
